@@ -107,7 +107,8 @@ def dumps(
         # V must be bytearray or bytes
         _jtlvi_assert(
             type(v) in (bytearray, bytes),
-            'Value for tag {} must be bytes or bytearray object, not {}'.format(t, type(v))
+            ('Value for tag {} must be bytes or bytearray ' +
+                'object, not {}').format(t, type(v))
         )
 
         # Pack T (16-bit big-endian)
@@ -169,7 +170,9 @@ def loads(input):
     calculated_checksum = bsd_checksum(input_zeroed)
     _jtlvi_assert(
         calculated_checksum == input_checksum,
-        'Incorrect checksum (calculated {}, saw {})'.format(calculated_checksum, input_checksum),
+        'Incorrect checksum (calculated {}, saw {})'.format(
+            calculated_checksum, input_checksum
+        ),
     )
 
     # Begin looping through TLVs
