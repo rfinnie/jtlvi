@@ -42,6 +42,14 @@ def _jtlvi_assert(assertion, text=None):
 
 
 def bsd_checksum(input):
+    """Calculate the BSD checksum of an input.
+
+    :param input:
+        Input to checksum, bytes-like object.
+
+    :return:
+        Checksum integer of the input, 0-65535 (inclusive).
+    """
     checksum = 0
     for ch in input:
         checksum = (checksum >> 1) + ((checksum & 1) << 15)
@@ -54,7 +62,10 @@ def dumps(
     input, sort=True, trailer=True,
     padded_length=0, padding_bytes=b'\x00',
 ):
-    """Encode an interable into a JTLVI message.
+    """Encode an iterable into a JTLVI message.
+
+    Any errors encountered during encoding will be raised as a
+    jtlvi.Error() exception.
 
     :param input:
         Input to encode.  May be a list of key/value tuples, or a
@@ -152,7 +163,10 @@ def loads(input):
         JTLVI message.
 
     :return:
-        Returns a list of key/value tuples.
+        Returns a list of key/value tuples.  Return may be given to
+        dict() or OrderedDict(), but as the JTLVI format allows for
+        duplicated and out-of-order tags, dicts may lose information
+        compared to the original dumped message.
     """
     input_len = len(input)
     output = []
