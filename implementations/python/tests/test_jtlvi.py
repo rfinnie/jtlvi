@@ -69,6 +69,13 @@ class TestDumps(unittest.TestCase):
             b'\xd4\x0e\x80a\xff\xff\x00\x00'
         )
 
+    def test_dumps_loads(self):
+        orig = [(62345, b'foo'), (0, b'bar')]
+        self.assertEqual(
+            jtlvi.loads(jtlvi.dumps(orig, sort=False)),
+            orig
+        )
+
 
 class TestDumpsExceptions(unittest.TestCase):
     def test_input_int(self):
@@ -165,6 +172,13 @@ class TestLoads(unittest.TestCase):
         self.assertEqual(
             jtlvi.load(f),
             []
+        )
+
+    def test_loads_dumps(self):
+        orig = b'\xd4\x0eo\x81\xf3\x89\x00\x03foo\x00\x00\x00\x03bar\xff\xff\x00\x00'
+        self.assertEqual(
+            jtlvi.dumps(jtlvi.loads(orig), sort=False),
+            orig
         )
 
 
