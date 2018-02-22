@@ -15,7 +15,7 @@ setup(
     name='jtlvi',
     description='JTLVI Message Format: Just TLV It!',
     long_description=read('README'),
-    version='1.0',
+    version='1.0.1',
     license='BSD',
     platforms=['Unix'],
     author='Ryan Finnie',
