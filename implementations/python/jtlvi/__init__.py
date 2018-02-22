@@ -23,6 +23,9 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import struct
+import sys
+
+assert(sys.version_info > (3, 4))
 
 
 class Error(Exception):

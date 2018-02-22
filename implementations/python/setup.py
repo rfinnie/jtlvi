@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 from setuptools import setup, find_packages
+
+assert(sys.version_info > (3, 4))
 
 
 def read(filename):
@@ -24,7 +27,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
