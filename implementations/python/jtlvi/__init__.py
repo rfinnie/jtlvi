@@ -94,7 +94,7 @@ def dumps(
         Returns a bytes object containing the encoded JTLVI message.
     """
     _jtlvi_assert(
-        hasattr(input, '__iter__'),
+        isinstance(input, (dict, list, tuple)),
         'Input must be a dict, or list of tuples',
     )
     if hasattr(input, 'items'):
@@ -110,7 +110,7 @@ def dumps(
     for (t, v) in input_items:
         # T must be a postive non-zero integer
         _jtlvi_assert(
-            type(t) == int,
+            isinstance(t, int),
             'Tag {} must be an integer'.format(t),
         )
         # T=65535 is reserved for explicit EOM
@@ -120,7 +120,7 @@ def dumps(
         )
         # V must be bytearray or bytes
         _jtlvi_assert(
-            type(v) in (bytearray, bytes),
+            isinstance(v, (bytearray, bytes)),
             ('Value for tag {} must be bytes or bytearray ' +
                 'object, not {}').format(t, type(v))
         )
