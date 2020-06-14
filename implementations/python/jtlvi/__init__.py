@@ -32,13 +32,10 @@ class Error(Exception):
     pass
 
 
-def _jtlvi_assert(assertion, text=None):
+def _assert(assertion, text):
     if assertion:
         return
-    if text:
-        raise Error(text)
-    else:
-        raise Error()
+    raise Error(text)
 
 
 def bsd_checksum(input):
@@ -90,7 +87,7 @@ def dumps(input, sort=True, trailer=True, padded_length=0, padding_bytes=b"\x00"
     :return:
         Returns a bytes object containing the encoded JTLVI message.
     """
-    _jtlvi_assert(
+    _assert(
         isinstance(input, (dict, list, tuple)),
         "Input must be a dict, or list of tuples",
     )
@@ -106,13 +103,13 @@ def dumps(input, sort=True, trailer=True, padded_length=0, padding_bytes=b"\x00"
 
     for (t, v) in input_items:
         # T must be a postive non-zero integer
-        _jtlvi_assert(isinstance(t, int), "Tag {} must be an integer".format(t))
+        _assert(isinstance(t, int), "Tag {} must be an integer".format(t))
         # T=65535 is reserved for explicit EOM
-        _jtlvi_assert(
+        _assert(
             0 <= t <= 65534, "Tag {} must be between 0 and 65534, inclusive".format(t)
         )
         # V must be bytearray or bytes
-        _jtlvi_assert(
+        _assert(
             isinstance(v, (bytearray, bytes)),
             ("Value for tag {} must be bytes or bytearray " + "object, not {}").format(
                 t, type(v)
@@ -166,16 +163,14 @@ def loads(input):
     output = []
 
     # Check correct magic number
-    _jtlvi_assert(
-        input[0:2] == b"\xd4\x0e", "Unknown magic number {}".format(input[0:2])
-    )
+    _assert(input[0:2] == b"\xd4\x0e", "Unknown magic number {}".format(input[0:2]))
     # Check input is a valid length (at least 4 bytes)
-    _jtlvi_assert(input_len >= 4, "Incorrect input length {}".format(input_len))
+    _assert(input_len >= 4, "Incorrect input length {}".format(input_len))
     # Verify the checksum
     input_checksum = struct.unpack("!H", input[2:4])[0]
     input_zeroed = b"\xd4\x0e\x00\x00" + input[4:]
     calculated_checksum = bsd_checksum(input_zeroed)
-    _jtlvi_assert(
+    _assert(
         calculated_checksum == input_checksum,
         "Incorrect checksum (calculated {}, saw {})".format(
             calculated_checksum, input_checksum
@@ -186,7 +181,7 @@ def loads(input):
     pos = 4
     while input_len > pos:
         # TLV must be at least 4 bytes (2 byte T, 2 byte L, 0+ byte V)
-        _jtlvi_assert(
+        _assert(
             input_len >= (pos + 4),
             "Position {}: Attempted to read T+L past EOM".format(pos),
         )
@@ -196,7 +191,7 @@ def loads(input):
             break
         length = struct.unpack("!H", input[pos + 2 : pos + 4])[0]
         # Make sure L does not read past EOM
-        _jtlvi_assert(
+        _assert(
             input_len >= (pos + 4 + length),
             "Position {}: Attempted to read T+L+V past EOM".format(pos),
         )
@@ -211,9 +206,8 @@ def load(fp, **kwargs):
     return loads(fp.read(), **kwargs)
 
 
-if __name__ == "__main__":
+def main(argv):
     import argparse
-    import sys
     import pickle
 
     parser = argparse.ArgumentParser(
@@ -224,9 +218,17 @@ if __name__ == "__main__":
         choices=["pickle-to-jtlvi", "jtlvi-to-pickle"],
         help="action to perform",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv[1:])
 
     if args.action == "pickle-to-jtlvi":
         dump(pickle.load(sys.stdin.buffer), sys.stdout.buffer)
     elif args.action == "jtlvi-to-pickle":
-        pickle.dump(load(sys.stdin.buffer), sys.stdout.buffer)
+        pickle.dump(load(sys.stdin.buffer), sys.stdout.buffer, protocol=3)
+
+
+def module_init():
+    if __name__ == "__main__":
+        sys.exit(main(sys.argv))
+
+
+module_init()

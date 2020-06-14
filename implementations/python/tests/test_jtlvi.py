@@ -1,6 +1,7 @@
-import unittest
-import jtlvi
 import io
+import unittest
+
+import jtlvi
 
 
 class TestDumps(unittest.TestCase):
