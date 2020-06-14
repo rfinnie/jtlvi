@@ -1,11 +1,9 @@
 language: python
 python:
-  - "3.4"
-  - "3.5"
   - "3.6"
+  - "3.7"
+  - "3.8"
 install:
-  - pip3 install ./implementations/python
+  - python -mpip install tox
 script:
-  - python3 ./implementations/python/setup.py test
-  - python3 ./implementations/python/setup.py check
-  - python3 ./implementations/python/setup.py sdist
+  - cd implementations/python && python -mtox

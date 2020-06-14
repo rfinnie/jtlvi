@@ -25,7 +25,7 @@
 import struct
 import sys
 
-assert(sys.version_info > (3, 4))
+assert sys.version_info > (3, 4)
 
 
 class Error(Exception):
@@ -54,14 +54,11 @@ def bsd_checksum(input):
     for ch in input:
         checksum = (checksum >> 1) + ((checksum & 1) << 15)
         checksum += ch
-        checksum &= 0xffff
+        checksum &= 0xFFFF
     return checksum
 
 
-def dumps(
-    input, sort=True, trailer=True,
-    padded_length=0, padding_bytes=b'\x00',
-):
+def dumps(input, sort=True, trailer=True, padded_length=0, padding_bytes=b"\x00"):
     """Encode an iterable into a JTLVI message.
 
     Any errors encountered during encoding will be raised as a
@@ -95,9 +92,9 @@ def dumps(
     """
     _jtlvi_assert(
         isinstance(input, (dict, list, tuple)),
-        'Input must be a dict, or list of tuples',
+        "Input must be a dict, or list of tuples",
     )
-    if hasattr(input, 'items'):
+    if hasattr(input, "items"):
         input_items = input.items()
     else:
         input_items = input
@@ -105,30 +102,27 @@ def dumps(
         input_items = sorted(input_items)
 
     # Magic number 0xd40e and temporarily-zeroed checksum
-    output = bytearray(b'\xd4\x0e\x00\x00')
+    output = bytearray(b"\xd4\x0e\x00\x00")
 
     for (t, v) in input_items:
         # T must be a postive non-zero integer
-        _jtlvi_assert(
-            isinstance(t, int),
-            'Tag {} must be an integer'.format(t),
-        )
+        _jtlvi_assert(isinstance(t, int), "Tag {} must be an integer".format(t))
         # T=65535 is reserved for explicit EOM
         _jtlvi_assert(
-            0 <= t <= 65534,
-            'Tag {} must be between 0 and 65534, inclusive'.format(t),
+            0 <= t <= 65534, "Tag {} must be between 0 and 65534, inclusive".format(t)
         )
         # V must be bytearray or bytes
         _jtlvi_assert(
             isinstance(v, (bytearray, bytes)),
-            ('Value for tag {} must be bytes or bytearray ' +
-                'object, not {}').format(t, type(v))
+            ("Value for tag {} must be bytes or bytearray " + "object, not {}").format(
+                t, type(v)
+            ),
         )
 
         # Pack T (16-bit big-endian)
-        output += struct.pack('!H', t)
+        output += struct.pack("!H", t)
         # Pack L (16-bit big-endian)
-        output += struct.pack('!H', len(v))
+        output += struct.pack("!H", len(v))
         # Append V
         output += v
 
@@ -136,14 +130,14 @@ def dumps(
     if (padded_length > 0) and (len(output) < padded_length):
         trailer = True
     if trailer:
-        output += b'\xff\xff\x00\x00'
+        output += b"\xff\xff\x00\x00"
     if len(output) < padded_length:
         pad_target = padded_length - len(output)
         padding = padding_bytes * int(pad_target / len(padding_bytes) + 1)
         output += padding[0:pad_target]
 
     # Calculate and inject the checksum
-    output[2:4] = struct.pack('!H', bsd_checksum(output))
+    output[2:4] = struct.pack("!H", bsd_checksum(output))
 
     return bytes(output)
 
@@ -173,21 +167,17 @@ def loads(input):
 
     # Check correct magic number
     _jtlvi_assert(
-        input[0:2] == b'\xd4\x0e',
-        'Unknown magic number {}'.format(input[0:2]),
+        input[0:2] == b"\xd4\x0e", "Unknown magic number {}".format(input[0:2])
     )
     # Check input is a valid length (at least 4 bytes)
-    _jtlvi_assert(
-        input_len >= 4,
-        'Incorrect input length {}'.format(input_len),
-    )
+    _jtlvi_assert(input_len >= 4, "Incorrect input length {}".format(input_len))
     # Verify the checksum
-    input_checksum = struct.unpack('!H', input[2:4])[0]
-    input_zeroed = b'\xd4\x0e\x00\x00' + input[4:]
+    input_checksum = struct.unpack("!H", input[2:4])[0]
+    input_zeroed = b"\xd4\x0e\x00\x00" + input[4:]
     calculated_checksum = bsd_checksum(input_zeroed)
     _jtlvi_assert(
         calculated_checksum == input_checksum,
-        'Incorrect checksum (calculated {}, saw {})'.format(
+        "Incorrect checksum (calculated {}, saw {})".format(
             calculated_checksum, input_checksum
         ),
     )
@@ -198,21 +188,21 @@ def loads(input):
         # TLV must be at least 4 bytes (2 byte T, 2 byte L, 0+ byte V)
         _jtlvi_assert(
             input_len >= (pos + 4),
-            'Position {}: Attempted to read T+L past EOM'.format(pos),
+            "Position {}: Attempted to read T+L past EOM".format(pos),
         )
-        t = struct.unpack('!H', input[pos:pos+2])[0]
+        tag = struct.unpack("!H", input[pos : pos + 2])[0]
         # T=65535 is reserved for explicit EOM; stop processing if seen
-        if t == 65535:
+        if tag == 65535:
             break
-        l = struct.unpack('!H', input[pos+2:pos+4])[0]
+        length = struct.unpack("!H", input[pos + 2 : pos + 4])[0]
         # Make sure L does not read past EOM
         _jtlvi_assert(
-            input_len >= (pos + 4 + l),
-            'Position {}: Attempted to read T+L+V past EOM'.format(pos),
+            input_len >= (pos + 4 + length),
+            "Position {}: Attempted to read T+L+V past EOM".format(pos),
         )
-        v = input[pos+4:pos+4+l]
-        output.append((t, v))
-        pos += 4 + l
+        value = input[pos + 4 : pos + 4 + length]
+        output.append((tag, value))
+        pos += 4 + length
 
     return output
 
@@ -221,22 +211,22 @@ def load(fp, **kwargs):
     return loads(fp.read(), **kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
     import sys
     import pickle
 
     parser = argparse.ArgumentParser(
-        description='jtlvi',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description="jtlvi", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'action', choices=['pickle-to-jtlvi', 'jtlvi-to-pickle'],
-        help='action to perform',
+        "action",
+        choices=["pickle-to-jtlvi", "jtlvi-to-pickle"],
+        help="action to perform",
     )
     args = parser.parse_args()
 
-    if args.action == 'pickle-to-jtlvi':
+    if args.action == "pickle-to-jtlvi":
         dump(pickle.load(sys.stdin.buffer), sys.stdout.buffer)
-    elif args.action == 'jtlvi-to-pickle':
+    elif args.action == "jtlvi-to-pickle":
         pickle.dump(load(sys.stdin.buffer), sys.stdout.buffer)
