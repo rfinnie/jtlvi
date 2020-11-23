@@ -16,7 +16,7 @@ setup(
     name="jtlvi",
     description="JTLVI Message Format: Just TLV It!",
     long_description=read("README.md"),
-    # long_description_content_type="text/markdown",  # Safe to add circa 2023
+    long_description_content_type="text/markdown",
     version="1.0.1",
     license="BSD",
     platforms=["Unix"],
