@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+# SPDX-PackageName: jtlvi
+# SPDX-PackageSupplier: Ryan Finnie <ryan@finnie.org>
+# SPDX-PackageDownloadLocation: https://codeberg.org/rfinnie/jtlvi
+# SPDX-FileCopyrightText: © 2018 Ryan Finnie <ryan@finnie.org>
+# SPDX-License-Identifier: MIT
 
 # jtlvi - Just TLV It!
 # Copyright (c) 2018 Ryan Finnie
@@ -25,7 +29,7 @@
 import struct
 import sys
 
-assert sys.version_info > (3, 4)
+__version__ = "1.0.1"
 
 
 class Error(Exception):
@@ -101,19 +105,15 @@ def dumps(input, sort=True, trailer=True, padded_length=0, padding_bytes=b"\x00"
     # Magic number 0xd40e and temporarily-zeroed checksum
     output = bytearray(b"\xd4\x0e\x00\x00")
 
-    for (t, v) in input_items:
+    for t, v in input_items:
         # T must be a postive non-zero integer
         _assert(isinstance(t, int), "Tag {} must be an integer".format(t))
         # T=65535 is reserved for explicit EOM
-        _assert(
-            0 <= t <= 65534, "Tag {} must be between 0 and 65534, inclusive".format(t)
-        )
+        _assert(0 <= t <= 65534, "Tag {} must be between 0 and 65534, inclusive".format(t))
         # V must be bytearray or bytes
         _assert(
             isinstance(v, (bytearray, bytes)),
-            ("Value for tag {} must be bytes or bytearray " + "object, not {}").format(
-                t, type(v)
-            ),
+            ("Value for tag {} must be bytes or bytearray " + "object, not {}").format(t, type(v)),
         )
 
         # Pack T (16-bit big-endian)
@@ -172,9 +172,7 @@ def loads(input):
     calculated_checksum = bsd_checksum(input_zeroed)
     _assert(
         calculated_checksum == input_checksum,
-        "Incorrect checksum (calculated {}, saw {})".format(
-            calculated_checksum, input_checksum
-        ),
+        "Incorrect checksum (calculated {}, saw {})".format(calculated_checksum, input_checksum),
     )
 
     # Begin looping through TLVs
@@ -210,9 +208,7 @@ def main(argv):
     import argparse
     import pickle
 
-    parser = argparse.ArgumentParser(
-        description="jtlvi", formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    parser = argparse.ArgumentParser(description="jtlvi", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "action",
         choices=["pickle-to-jtlvi", "jtlvi-to-pickle"],

@@ -1,3 +1,9 @@
+# SPDX-PackageName: jtlvi
+# SPDX-PackageSupplier: Ryan Finnie <ryan@finnie.org>
+# SPDX-PackageDownloadLocation: https://codeberg.org/rfinnie/jtlvi
+# SPDX-FileCopyrightText: © 2018 Ryan Finnie <ryan@finnie.org>
+# SPDX-License-Identifier: MIT
+
 import io
 import unittest
 
@@ -67,19 +73,13 @@ class TestDumps(unittest.TestCase):
 
 class TestDumpsExceptions(unittest.TestCase):
     def test_input_int(self):
-        self.assertRaisesRegex(
-            jtlvi.Error, "Input must be a dict, or list of tuples", jtlvi.dumps, 1
-        )
+        self.assertRaisesRegex(jtlvi.Error, "Input must be a dict, or list of tuples", jtlvi.dumps, 1)
 
     def test_tag_bytes(self):
-        self.assertRaisesRegex(
-            jtlvi.Error, "Tag b'1' must be an integer", jtlvi.dumps, [(b"1", b"")]
-        )
+        self.assertRaisesRegex(jtlvi.Error, "Tag b'1' must be an integer", jtlvi.dumps, [(b"1", b"")])
 
     def test_tag_float(self):
-        self.assertRaisesRegex(
-            jtlvi.Error, "Tag 1.0 must be an integer", jtlvi.dumps, [(1.0, b"")]
-        )
+        self.assertRaisesRegex(jtlvi.Error, "Tag 1.0 must be an integer", jtlvi.dumps, [(1.0, b"")])
 
     def test_tag_negative(self):
         self.assertRaisesRegex(
@@ -120,17 +120,13 @@ class TestLoads(unittest.TestCase):
 
     def test_sorted(self):
         self.assertEqual(
-            jtlvi.loads(
-                b"\xd4\x0e\xef\x7f\x00\x01\x00\x03foo\x00\x02\x00\x03bar\xff\xff\x00\x00"
-            ),
+            jtlvi.loads(b"\xd4\x0e\xef\x7f\x00\x01\x00\x03foo\x00\x02\x00\x03bar\xff\xff\x00\x00"),
             [(1, b"foo"), (2, b"bar")],
         )
 
     def test_unsorted(self):
         self.assertEqual(
-            jtlvi.loads(
-                b"\xd4\x0e>a\x00\x02\x00\x03bar\x00\x01\x00\x03foo\xff\xff\x00\x00"
-            ),
+            jtlvi.loads(b"\xd4\x0e>a\x00\x02\x00\x03bar\x00\x01\x00\x03foo\xff\xff\x00\x00"),
             [(2, b"bar"), (1, b"foo")],
         )
 
@@ -166,9 +162,7 @@ class TestLoadsExceptions(unittest.TestCase):
         )
 
     def test_short_message(self):
-        self.assertRaisesRegex(
-            jtlvi.Error, "Incorrect input length 2", jtlvi.loads, b"\xd4\x0e"
-        )
+        self.assertRaisesRegex(jtlvi.Error, "Incorrect input length 2", jtlvi.loads, b"\xd4\x0e")
 
     def test_invalid_checksum(self):
         self.assertRaisesRegex(

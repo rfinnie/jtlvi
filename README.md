@@ -70,6 +70,26 @@ d40e c5aa 0002 0004 5a40931d 04d2 0000 162e 000b 48656c6c6f2c20e2988321 ffff 000
 * Tag 65535, length 0, no value (last-element sentinel)
 * 5 bytes of padding, 0xf0f0f0f0f0
 
+### Python
+
+```python
+>>> from struct import pack
+>>> jtlvi.dumps([(1, pack('!I', 123)), (2, b'Hello!')])  # Native format is list of tuples
+b'\xd4\x0e\xc4\xf5\x00\x01\x00\x04\x00\x00\x00{\x00\x02\x00\x06Hello!\xff\xff\x00\x00'
+>>> jtlvi.dumps({999: pack('!f', 1.2)})  # Dicts can also be supplied
+b'\xd4\x0e*q\x03\xe7\x00\x04?\x99\x99\x9a\xff\xff\x00\x00'
+>>> jtlvi.loads(b'\xd4\x0e*q\x03\xe7\x00\x04?\x99\x99\x9a\xff\xff\x00\x00')
+[(999, b'?\x99\x99\x9a')]
+```
+
 ## License
 
-Copyright © 2018 Ryan Finnie.  This specification is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).  Implementations of the specification may be under different licenses.
+This document is provided under the following license:
+
+    SPDX-PackageName: jtlvi
+    SPDX-PackageSupplier: Ryan Finnie <ryan@finnie.org>
+    SPDX-PackageDownloadLocation: https://codeberg.org/rfinnie/jtlvi
+    SPDX-FileCopyrightText: © 2018 Ryan Finnie <ryan@finnie.org>
+    SPDX-License-Identifier: CC-BY-SA-4.0
+
+Implementations of the specification may be under different licenses.
