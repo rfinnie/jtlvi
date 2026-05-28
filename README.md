@@ -1,5 +1,8 @@
 # JTLVI Message Format: Just TLV It!
 
+[![Git forge repository](https://img.shields.io/badge/git-forge-orange?logo=forgejo)](https://forge.colobox.com/rfinnie/jtlvi)
+[![CI pipeline status](https://woodpecker.colobox.com/api/badges/46/status.svg)](https://woodpecker.colobox.com/repos/46)
+
 # Background
 
 The authors were discussing what comprises a good binary message format, specifically for use in datagram network communication, but also in general.  This was in response to a message specification which shall remain nameless, but had features such as requiring that the parser know that tag 18 was followed by an 8-byte value.  That is to say, the parser must implement the entire specification to be able to parse even an arbitrary message.
